@@ -91,8 +91,8 @@ const BLOG = {
   ADSENSE_GOOGLE_ID: process.env.NEXT_PUBLIC_ADSENSE_GOOGLE_ID || '', // 谷歌广告ID e.g ca-pub-xxxxxxxxxxxxxxxx
 
   // 无关紧要的配置
-  TITLE: process.env.NEXT_PUBLIC_TITLE || 'NotionNext BLOG', // 站点标题 ，被notion中的页面标题覆盖
-  DESCRIPTION: process.env.NEXT_PUBLIC_DESCRIPTION || '这是一个由NotionNext生成的站点', // 站点描述，被notion中的页面描述覆盖
+  TITLE: process.env.NEXT_PUBLIC_TITLE || '流浪在纽村', // 站点标题 ，被notion中的页面标题覆盖
+  DESCRIPTION: process.env.NEXT_PUBLIC_DESCRIPTION || '南半球的搬砖人', // 站点描述，被notion中的页面描述覆盖
 
   isProd: process.env.VERCEL_ENV === 'production', // distinguish between development and production environment (ref: https://vercel.com/docs/environment-variables#system-environment-variables)  isProd: process.env.VERCEL_ENV === 'production' // distinguish between development and production environment (ref: https://vercel.com/docs/environment-variables#system-environment-variables)
   VERSION: '2.9.0' // 版本号
