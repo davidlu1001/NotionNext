@@ -1,10 +1,3 @@
-import {
-  Code,
-  Collection,
-  CollectionRow,
-  Equation,
-  NotionRenderer
-} from 'react-notion-x'
 import Comment from '@/components/Comment'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -14,28 +7,18 @@ import TagItemMini from './TagItemMini'
 import CONFIG_MEDIUM from '../config_medium'
 import formatDate from '@/lib/formatDate'
 import { useGlobal } from '@/lib/global'
-
-import 'prismjs'
-import 'prismjs/components/prism-bash'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-markup'
-import 'prismjs/components/prism-python'
-import 'prismjs/components/prism-typescript'
 import BLOG from '@/blog.config'
-
-const mapPageUrl = id => {
-  return 'https://www.notion.so/' + id.replace(/-/g, '')
-}
+import NotionPage from '@/components/NotionPage'
 
 export const ArticleDetail = props => {
   const { post, prev, next } = props
   const { locale } = useGlobal()
 
   const date = formatDate(
-    post?.date?.start_date || post.createdTime,
+    post?.date?.start_date || post?.createdTime,
     locale.LOCALE
   )
-  return <>
+  return <div id='container'>
     <h1 className="text-4xl pt-12 font-sans dark:text-gray-100">{post?.title}</h1>
     <section className="flex py-4 items-center font-sans px-1">
       <Link href="/about" passHref>
@@ -54,6 +37,9 @@ export const ArticleDetail = props => {
         </>
       </Link>
       <div className="text-gray-500">{date}</div>
+      <div className='mx-2 text-gray-300 dark:text-gray-600'>
+        {locale.COMMON.LAST_EDITED_TIME}: {post.lastEditedTime}
+      </div>
       <div className="hidden busuanzi_container_page_pv text-gray-500 font-light mr-2">
         <i className="ml-3 mr-0.5 fas fa-eye" />
         &nbsp;
@@ -62,18 +48,7 @@ export const ArticleDetail = props => {
     </section>
     {/* Notion文章主体 */}
     <section id="notion-article" className="px-1 max-w-5xl">
-      {post.blockMap && (
-        <NotionRenderer
-          recordMap={post.blockMap}
-          mapPageUrl={mapPageUrl}
-          components={{
-            equation: Equation,
-            code: Code,
-            collectionRow: CollectionRow,
-            collection: Collection
-          }}
-        />
-      )}
+      {post && (<NotionPage post={post} />)}
     </section>
 
     <section className="px-1 py-2 my-1 text-sm font-light overflow-auto text-gray-600  dark:text-gray-400">
@@ -90,13 +65,13 @@ export const ArticleDetail = props => {
     </section>
     <section>
       <div className='flex justify-between'>
-      { CONFIG_MEDIUM.POST_DETAIL_CATEGORY && post.category && <CategoryItem category={post.category}/>}
-      <div>
-      { CONFIG_MEDIUM.POST_DETAIL_TAG && post?.tagItems?.map(tag => <TagItemMini key={tag.name} tag={tag} />)}
-      </div>
+        {CONFIG_MEDIUM.POST_DETAIL_CATEGORY && post.category && <CategoryItem category={post.category} />}
+        <div>
+          {CONFIG_MEDIUM.POST_DETAIL_TAG && post?.tagItems?.map(tag => <TagItemMini key={tag.name} tag={tag} />)}
+        </div>
       </div>
       <ArticleAround prev={prev} next={next} />
       <Comment frontMatter={post} />
     </section>
-    </>
+  </div>
 }

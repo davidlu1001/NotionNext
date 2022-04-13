@@ -2,18 +2,26 @@ import { getGlobalNotionData } from '@/lib/notion/getNotionData'
 import { useGlobal } from '@/lib/global'
 import { getDataFromCache } from '@/lib/cache/cache_manager'
 import * as ThemeMap from '@/themes'
+import BLOG from '@/blog.config'
 
 const Index = props => {
   const { keyword, siteInfo } = props
   const { locale } = useGlobal()
   const meta = {
-    title: `${keyword || ''} | ${locale.NAV.SEARCH} | ${siteInfo.title}`,
-    description: siteInfo.title,
+    title: `${keyword || ''}${keyword ? ' | ' : ''}${locale.NAV.SEARCH} | ${siteInfo?.title}`,
+    description: siteInfo?.title,
+    slug: 'search/' + (keyword || ''),
     type: 'website'
   }
   const { theme } = useGlobal()
   const ThemeComponents = ThemeMap[theme]
-  return <ThemeComponents.LayoutSearch {...props} meta={meta} currentSearch={keyword} />
+  return (
+    <ThemeComponents.LayoutSearch
+      {...props}
+      meta={meta}
+      currentSearch={keyword}
+    />
+  )
 }
 
 /**
@@ -21,11 +29,23 @@ const Index = props => {
  * @param {*} param0
  * @returns
  */
-export async function getServerSideProps ({ params: { keyword } }) {
-  const props = await getGlobalNotionData({ from: 'search-props', pageType: ['Post'] })
+export async function getStaticProps({ params: { keyword } }) {
+  const props = await getGlobalNotionData({
+    from: 'search-props',
+    pageType: ['Post']
+  })
   props.posts = await filterByMemCache(props.allPosts, keyword)
+  props.keyword = keyword
   return {
-    props
+    props,
+    revalidate: 1
+  }
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [{ params: { keyword: BLOG.TITLE } }],
+    fallback: true
   }
 }
 
@@ -36,7 +56,7 @@ export async function getServerSideProps ({ params: { keyword } }) {
  * @param key
  * @returns {*}
  */
-function appendText (sourceTextArray, targetObj, key) {
+function appendText(sourceTextArray, targetObj, key) {
   if (!targetObj) {
     return sourceTextArray
   }
@@ -53,7 +73,7 @@ function appendText (sourceTextArray, targetObj, key) {
  * @param {*} textArray
  * @returns
  */
-function getTextContent (textArray) {
+function getTextContent(textArray) {
   if (typeof textArray === 'object' && isIterable(textArray)) {
     let result = ''
     for (const textObj of textArray) {
@@ -70,7 +90,8 @@ function getTextContent (textArray) {
  * @param {*} obj
  * @returns
  */
-const isIterable = obj => obj != null && typeof obj[Symbol.iterator] === 'function'
+const isIterable = obj =>
+  obj != null && typeof obj[Symbol.iterator] === 'function'
 
 /**
  * 在内存缓存中进行全文索引
@@ -78,11 +99,13 @@ const isIterable = obj => obj != null && typeof obj[Symbol.iterator] === 'functi
  * @param keyword 关键词
  * @returns
  */
-async function filterByMemCache (allPosts, keyword) {
+async function filterByMemCache(allPosts, keyword) {
   const filterPosts = []
+  if (keyword) {
+    keyword = keyword.trim()
+  }
   for (const post of allPosts) {
     const cacheKey = 'page_block_' + post.id
-    // const page = await getPostBlocks(post.id, 'search')
     const page = await getDataFromCache(cacheKey)
     const tagContent = post.tags ? post.tags.join(' ') : ''
     const categoryContent = post.category ? post.category.join(' ') : ''
@@ -97,7 +120,7 @@ async function filterByMemCache (allPosts, keyword) {
         indexContent = appendText(indexContent, properties, 'caption')
       })
     }
-    // console.log('搜索是否命中缓存', page !== null, indexContent)
+    console.log('全文搜索缓存', cacheKey, page != null)
     post.results = []
     let hitCount = 0
     for (const i in indexContent) {
@@ -105,7 +128,7 @@ async function filterByMemCache (allPosts, keyword) {
       if (!c) {
         continue
       }
-      const index = c.toLowerCase().indexOf(keyword.toLowerCase()) || -1
+      const index = c.toLowerCase().indexOf(keyword.toLowerCase())
       if (index > -1) {
         hit = true
         hitCount += 1
