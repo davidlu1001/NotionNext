@@ -1,27 +1,20 @@
-import BLOG from '@/blog.config'
+import { siteConfig } from '@/lib/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React from 'react'
+import { checkContainHttp, sliceUrlFromHttp } from '@/lib/utils'
+import NotionIcon from '@/components/NotionIcon'
 
 const BlogPostCard = ({ post, className }) => {
   const router = useRouter()
   const currentSelected = router.asPath.split('?')[0] === '/' + post.slug
+  const url = checkContainHttp(post.slug) ? sliceUrlFromHttp(post.slug) : `${siteConfig('SUB_PATH', '')}/${post.slug}`
   return (
-        <div key={post.id} className="py-0.5">
-            <div className="flex flex-col w-full">
-                <Link
-                    href={`${BLOG.SUB_PATH}/${post.slug}`}
-                    passHref
-                    className={
-                        `${className} ${currentSelected ? 'bg-gray-500 text-white font-bold' : 'text-gray-700 dark:text-gray-300 '} pl-1 hover:font-bold py-0.5 cursor-pointer`
-                    }>
-                    <div>
-                        {post.title}
-                    </div>
-
-                </Link>
+        <Link href={url} passHref> <div key={post.id} className={`${className} py-1.5 cursor-pointer px-1.5 hover:bg-gray-50 rounded-md dark:hover:bg-gray-600  ${currentSelected ? 'bg-green-50 text-green-500' : ''}`}>
+            <div className="w-full select-none">
+                <NotionIcon icon={post?.pageIcon}/> {post.title}
             </div>
         </div>
+        </Link>
   )
 }
 
