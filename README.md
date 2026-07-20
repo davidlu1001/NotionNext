@@ -192,3 +192,5 @@ The MIT License.
 [![GitHub forks](https://img.shields.io/github/forks/notionnext-org/NotionNext?style=social)](https://github.com/notionnext-org/NotionNext/forks)
 
 Live star-history charts are temporarily unavailable because GitHub now restricts historical stargazer data to repository owners and collaborators.
+
+<!-- cache-bust 2026-07-21: refresh collection query cache after view sort change -->
