@@ -193,4 +193,4 @@ The MIT License.
 
 Live star-history charts are temporarily unavailable because GitHub now restricts historical stargazer data to repository owners and collaborators.
 
-<!-- cache-bust 2026-07-21: refresh collection query cache after view sort change -->
+<!-- cache-bust 2026-07-21b: pick up POSTS_SORT_BY=date from Notion CONFIG-TABLE -->
